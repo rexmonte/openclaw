@@ -41,6 +41,8 @@ interface OllamaChatRequest {
   model: string;
   messages: OllamaChatMessage[];
   stream: boolean;
+  keep_alive?: number;
+  think?: boolean;
   tools?: OllamaTool[];
   options?: Record<string, unknown>;
 }
@@ -462,6 +464,8 @@ export function createOllamaStreamFn(
           model: model.id,
           messages: ollamaMessages,
           stream: true,
+          keep_alive: -1,
+          ...(!model.reasoning ? { think: false } : {}),
           ...(ollamaTools.length > 0 ? { tools: ollamaTools } : {}),
           options: ollamaOptions,
         };

@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { rmSync, statSync } from "node:fs";
 import { completeSimple, type TextContent } from "@mariozechner/pi-ai";
 import { EdgeTTS } from "node-edge-tts";
@@ -696,6 +697,11 @@ export function inferEdgeExtension(outputFormat: string): string {
   return ".mp3";
 }
 
+// Rex patch: CSM-1B voice clone via speak.sh replaces Edge TTS.
+// Falls back to Edge TTS if speak.sh is not available.
+const CUSTOM_TTS_SCRIPT = "/Users/clawdrex/.openclaw/workspace/voice/speak.sh";
+const CUSTOM_TTS_TIMEOUT_MS = 300_000; // 5 minutes for CSM-1B generation
+
 export async function edgeTTS(params: {
   text: string;
   outputPath: string;
@@ -703,6 +709,29 @@ export async function edgeTTS(params: {
   timeoutMs: number;
 }): Promise<void> {
   const { text, outputPath, config, timeoutMs } = params;
+
+  // Try custom CSM-1B voice clone first
+  try {
+    const result = spawnSync(CUSTOM_TTS_SCRIPT, [text], {
+      timeout: CUSTOM_TTS_TIMEOUT_MS,
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    if (result.status === 0 && result.stdout?.trim()) {
+      const wavPath = result.stdout.trim();
+      // speak.sh returns the WAV path — copy to expected output
+      const { copyFileSync } = await import("node:fs");
+      copyFileSync(wavPath, outputPath);
+      const { size } = statSync(outputPath);
+      if (size > 0) {
+        return; // custom-csm1b success
+      }
+    }
+  } catch {
+    // Fall through to Edge TTS
+  }
+
+  // Fallback: standard Edge TTS
   const tts = new EdgeTTS({
     voice: config.voice,
     lang: config.lang,

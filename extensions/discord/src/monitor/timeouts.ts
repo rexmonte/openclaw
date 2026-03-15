@@ -1,6 +1,8 @@
 const MAX_DISCORD_TIMEOUT_MS = 2_147_483_647;
 
-export const DISCORD_DEFAULT_LISTENER_TIMEOUT_MS = 120_000;
+// Rex patch: 120s is too short for local model inference (Ollama/MLX).
+// Bumped to 600s (10 min) to prevent silent reply drops on slow generation.
+export const DISCORD_DEFAULT_LISTENER_TIMEOUT_MS = 600_000;
 export const DISCORD_DEFAULT_INBOUND_WORKER_TIMEOUT_MS = 30 * 60_000;
 
 function clampDiscordTimeoutMs(timeoutMs: number, minimumMs: number): number {

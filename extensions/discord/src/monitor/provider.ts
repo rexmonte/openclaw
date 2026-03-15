@@ -739,10 +739,9 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       clientPlugins.push(new VoicePlugin());
     }
     // Pass eventQueue config to Carbon so the gateway listener budget can be tuned.
-    // Default listenerTimeout is 120s (Carbon defaults to 30s, which is too short for some
-    // Discord normalization/enqueue work).
+    // Rex patch: 120s is too short for local model inference. Bumped to 600s.
     const eventQueueOpts = {
-      listenerTimeout: 120_000,
+      listenerTimeout: 600_000,
       ...discordCfg.eventQueue,
     };
     const client = new Client(

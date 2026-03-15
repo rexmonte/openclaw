@@ -728,7 +728,13 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
       identifierInstructions: runtime?.identifierInstructions,
     };
     const identifierPolicy = runtime?.identifierPolicy ?? "strict";
-    const model = ctx.model ?? runtime?.model;
+    let model = ctx.model ?? runtime?.model;
+    // Rex patch: Ollama/MLX models lack a native compaction provider in pi-ai.
+    // Fall back to Haiku for compaction summarization when the resolved model is local.
+    if (model && /^ollama[:/]|^mlx[:/]/.test(model.id ?? "")) {
+      log.info(`[compaction-safeguard] Swapping local model "${model.id}" → Haiku for compaction.`);
+      model = "claude-haiku-4-5-20251001" as unknown as typeof model;
+    }
     if (!model) {
       // Log warning once per session when both models are missing (diagnostic for future issues).
       // Use a WeakSet to track which session managers have already logged the warning.

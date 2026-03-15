@@ -245,6 +245,8 @@ async function loadWebMediaInternal(
   // Strip MEDIA: prefix used by agent tools (e.g. TTS) to tag media paths.
   // Be lenient: LLM output may add extra whitespace (e.g. "  MEDIA :  /tmp/x.png").
   mediaUrl = mediaUrl.replace(/^\s*MEDIA\s*:\s*/i, "");
+  // Rex patch: strip HTML comments that LLMs sometimes echo (e.g. <!--AUDIO_AS_VOICE-->)
+  mediaUrl = mediaUrl.replace(/<!--.*?-->/gs, "").trim();
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {

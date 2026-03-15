@@ -483,6 +483,8 @@ type VoiceMessageOpts = {
 };
 
 async function materializeVoiceMessageInput(mediaUrl: string): Promise<{ filePath: string }> {
+  // Rex patch: strip HTML comments that LLMs sometimes echo (e.g. <!--AUDIO_AS_VOICE-->)
+  mediaUrl = mediaUrl.replace(/<!--.*?-->/gs, "").trim();
   // Security: reuse the standard media loader so we apply SSRF guards + allowed-local-root checks.
   // Then write to a private temp file so ffmpeg/ffprobe never sees the original URL/path string.
   const media = await loadWebMediaRaw(mediaUrl, maxBytesForKind("audio"));
