@@ -13,6 +13,8 @@ const DEFAULT_MODEL_IDS = [
   "gpt-4.1",
   "gpt-4.1-mini",
   "gpt-4.1-nano",
+  "gpt-5.4-mini",
+  "gpt-5.4-nano",
   "o1",
   "o1-mini",
   "o3-mini",

@@ -34,8 +34,9 @@ openclaw onboard --openai-api-key "$OPENAI_API_KEY"
 }
 ```
 
-OpenAI's current API model docs list `gpt-5.4` and `gpt-5.4-pro` for direct
-OpenAI API usage. OpenClaw forwards both through the `openai/*` Responses path.
+OpenAI's current API model docs list `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini`,
+and `gpt-5.4-nano` for direct OpenAI API usage. OpenClaw forwards all four
+through the `openai/*` Responses path.
 OpenClaw intentionally suppresses the stale `openai/gpt-5.3-codex-spark` row,
 because direct OpenAI API calls reject it in live traffic.
 
